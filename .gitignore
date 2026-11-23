@@ -1,0 +1,92 @@
+# =====================================================================
+#  .gitignore · Curso RTL → GDSII (12 h)
+#  Regla del curso: en git va el CÓDIGO y los SCRIPTS; nunca el PDK,
+#  nada bajo NDA, ni resultados pesados que se regeneran con `make`.
+#  (Para versionar a propósito un ejemplo concreto: git add -f <archivo>)
+# =====================================================================
+
+# ---- PDKs y librerías (nunca) ----
+pdks/
+sky130A/
+sky130B/
+gf180mcu*/
+.ciel/
+.volare/
+*.lib
+*.db
+
+# ---- Logs genéricos ----
+*.log
+*.jou
+
+# ---- Simulación (Icarus / Verilator / GTKWave) ----
+sim_*
+*.vvp
+*.vcd
+*.fst
+*.ghw
+obj_dir/
+*.gtkw.bak
+
+# ---- cocotb ----
+sim_build/
+results.xml
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# ---- Verificación formal (SymbiYosys) ----
+**/lab03-verif/**/prueba/
+**/lab03-verif/**/bug/
+*_bmc/
+*_prove/
+
+# ---- Síntesis (Yosys) ----
+netlist.v
+*.blif
+*.json.gz
+syn_out/
+
+# ---- Place & Route (OpenROAD) ----
+*.odb
+*.def
+*.spef
+route_drc.rpt
+results/
+reports/
+
+# ---- LibreLane / OpenLane ----
+runs/
+
+# ---- Layout y signoff (Magic / KLayout / Netgen) ----
+*.gds
+*.gds.gz
+*.oas
+*.mag
+*.ext
+*.sim
+*.nodes
+*.lyrdb
+comp.out
+*.spice.bak
+
+# ---- Herramientas comerciales (por si alguien prueba en el lab) ----
+simv
+simv.daidir/
+csrc/
+*.vpd
+*.fsdb
+*.dlib/
+WORK/
+work/
+
+# ---- Slides: renders intermedios y salidas ----
+slides/**/_render/
+slides/out/
+
+# ---- Sistema / editores ----
+.DS_Store
+*~
+*.swp
+.vscode/
+.idea/

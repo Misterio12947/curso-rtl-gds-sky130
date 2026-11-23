@@ -1,0 +1,18 @@
+{
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "Comic Sans MS, Comic Relief, Comic Neue, cursive",
+    "fontSize": "22px",
+    "primaryColor": "#FFFFFF",
+    "primaryBorderColor": "#000000",
+    "primaryTextColor": "#1A1A1A",
+    "secondaryColor": "#C2F1C8",
+    "tertiaryColor": "#F2F2F2",
+    "lineColor": "#000000",
+    "clusterBkg": "#F7F0FF",
+    "clusterBorder": "#9933FF",
+    "edgeLabelBackground": "#FFFFFF"
+  },
+  "flowchart": { "curve": "basis", "padding": 18, "nodeSpacing": 45, "rankSpacing": 55, "htmlLabels": true },
+  "stateDiagram": { "padding": 12 }
+}

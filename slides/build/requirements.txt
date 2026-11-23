@@ -1,0 +1,5 @@
+# Para construir las slides (solo el instructor; los alumnos no lo necesitan)
+python-pptx>=1.0
+Pillow
+lxml
+# Además: mermaid-cli (Node >= 18):  npm install -g @mermaid-js/mermaid-cli
