@@ -9,30 +9,23 @@
 
 # R1 (comando) Muestra con cat el README del semáforo
 #    (está en common/rtl/semaphore/README.md)
-R1:
-
+R1: cat ../../common/rtl/semaphore/README.md
 # R2 (ruta) Imagina que estás en labs/lab03-verif.
 #    ¿Cuál es la ruta relativa a common/rtl/semaphore/rtl/semaphore.v?
-R2:
-
+R2: ../../common/rtl/semaphore/rtl/semaphore.v
 # R3 (comando) ¿Cuántas líneas tiene semaphore.v?
-R3:
-
+R3: wc -l ../../common/rtl/semaphore/rtl/semaphore.v
 # R4 (comando) Encuentra TODOS los archivos llamados Makefile del repo
 #    (pista: find desde la raíz del repo, que está dos niveles arriba)
-R4:
-
+R4: find ../.. -name Makefile -not -path "*/.git/*"
 # R5 (comando) Muestra solo las líneas de semaphore.v que declaran un parameter
-R5:
-
+R5: grep parameter ../../common/rtl/semaphore/rtl/semaphore.v
 # R6 (comando) ¿En qué carpeta está instalado el ejecutable de yosys?
 #    (aquí la salida sí será una ruta absoluta: es del sistema, no del repo)
-R6:
-
+R6: which yosys
 # R7 (comando) ¿Cuántos archivos .lib (uno por corner) trae la librería?
 #    Usa la variable $SCL_DIR que fija env.sh (no escribas la ruta a mano)
-R7:
-
+R7: ls $SCL_DIR/lib/*.lib | wc -l
 # R8 (ruta) Imagina que estás en common/rtl/semaphore/tb.
 #    ¿Cuál es la ruta relativa a scripts/env.sh?
-R8:
+R8: ../../../../scripts/env.sh

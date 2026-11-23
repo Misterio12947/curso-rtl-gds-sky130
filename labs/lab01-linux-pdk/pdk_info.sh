@@ -11,9 +11,6 @@
 #    .lef  (libs.ref/sky130_fd_sc_hd/lef/)  -> tamaño y pines (los usa PnR)
 #
 #  Requiere haber hecho:  source ../../scripts/env.sh
-#
-#  TU TAREA: completar los 3 TODO (uno por dato). Pruébalo con:
-#     make celda CELDA=nand2_1
 # =====================================================================
 set -u
 
@@ -46,13 +43,10 @@ done
 #    y más abajo tiene una línea:          area : 3.7536000000;
 #    Busca la primera línea "area" DESPUÉS de que aparece tu celda.
 # ---------------------------------------------------------------------
-#  TODO 1: quita los "#" de las 4 líneas de abajo y llena el hueco ____
-#          (pista: ¿qué palabra está en el campo $1 de la línea del área?)
-AREA=""
-# AREA=$(awk -v c="$CELDA" '
-#   index($0, "cell (\"" c "\")") { dentro = 1 }
-#   dentro && $1 == "____" { gsub(/;/, "", $3); print $3 + 0; exit }
-# ' "$LIB")
+AREA=$(awk -v c="$CELDA" '
+  index($0, "cell (\"" c "\")") { dentro = 1 }
+  dentro && $1 == "area" { gsub(/;/, "", $3); print $3 + 0; exit }
+' "$LIB")
 
 # ---------------------------------------------------------------------
 # 2) TAMAÑO (.lef)
@@ -60,13 +54,10 @@ AREA=""
 #    y adentro tiene:                   SIZE  1.380000 BY  2.720000 ;
 #    Imprime el ancho y el alto (campos 2 y 4 de esa línea).
 # ---------------------------------------------------------------------
-#  TODO 2: quita los "#" y llena los huecos.
-#          (pista: ¿en qué campos $N quedan "1.380000" y "2.720000"?)
-ANCHO=""; ALTO=""
-# read -r ANCHO ALTO < <(awk -v c="$CELDA" '
-#   $1 == "MACRO" && $2 == c { dentro = 1 }
-#   dentro && $1 == "____"   { print $__ + 0, $__ + 0; exit }
-# ' "$LEF")
+read -r ANCHO ALTO < <(awk -v c="$CELDA" '
+  $1 == "MACRO" && $2 == c { dentro = 1 }
+  dentro && $1 == "SIZE"   { print $2 + 0, $4 + 0; exit }
+' "$LEF")
 
 # ---------------------------------------------------------------------
 # 3) PINES (.lef)
@@ -74,16 +65,12 @@ ANCHO=""; ALTO=""
 #                                         DIRECTION INPUT ;
 #    Imprime una línea por pin:  "<nombre> <dirección>"
 # ---------------------------------------------------------------------
-#  TODO 3: quita los "#" y llena los huecos.
-#          (pista: hay que recordar el nombre del pin hasta ver su DIRECTION,
-#           y dejar de leer cuando llega el END de la celda)
-PINES=""
-# PINES=$(awk -v c="$CELDA" '
-#   $1 == "MACRO" && $2 == c                  { dentro = 1 }
-#   dentro && $1 == "END" && $2 == c          { ____ }
-#   dentro && $1 == "PIN"                     { pin = $__ }
-#   dentro && $1 == "____" && pin != ""       { print pin, $2; pin = "" }
-# ' "$LEF")
+PINES=$(awk -v c="$CELDA" '
+  $1 == "MACRO" && $2 == c                  { dentro = 1 }
+  dentro && $1 == "END" && $2 == c          { exit }
+  dentro && $1 == "PIN"                     { pin = $2 }
+  dentro && $1 == "DIRECTION" && pin != ""  { print pin, $2; pin = "" }
+' "$LEF")
 
 # ---------------------------------------------------------------------
 #  Reporte (ya está hecho: no hay que tocarlo)
