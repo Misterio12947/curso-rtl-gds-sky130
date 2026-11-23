@@ -16,9 +16,9 @@ Todo corre dentro del contenedor [`hpretl/iic-osic-tools`](https://github.com/ii
 # 1) Levanta el contenedor (desde la carpeta del repo de iic-osic-tools)
 ./start_vnc.sh        # o ./start_x.sh en Linux / WSL2
 
-# 2) Dentro del contenedor, clona el curso en la carpeta compartida
+# 2) Haz fork de este repo en GitHub y, dentro del contenedor, clona TU fork
 cd /foss/designs
-git clone https://github.com/Misterio12947/curso-rtl-gds-sky130.git
+git clone https://github.com/<tu-usuario>/curso-rtl-gds-sky130.git
 cd curso-rtl-gds-sky130
 
 # 3) Prueba de humo: herramientas + PDK

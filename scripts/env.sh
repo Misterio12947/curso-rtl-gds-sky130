@@ -27,6 +27,7 @@ _pdk_ok() { [ -n "$1" ] && [ -f "$1/$PDK/$_TTLIB" ]; }
 _pdk_root=""
 for _c in \
     "$PDK_ROOT" \
+    /foss/designs/pdks \
     "$HOME/pdks" \
     /foss/pdks \
     /foss/pdks/ciel/sky130/versions/* \
