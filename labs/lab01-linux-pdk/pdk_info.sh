@@ -7,8 +7,8 @@
 #         ./pdk_info.sh sky130_fd_sc_hd__dfrtp_1 ss_100C_1v60
 #
 #  Lee dos vistas del PDK:
-#    .lib  (libs.ref/sky130_fd_sc_hd/lib/)  -> área      (la usa síntesis)
-#    .lef  (libs.ref/sky130_fd_sc_hd/lef/)  -> tamaño y pines (los usa PnR)
+#    .lib  (libs.ref/sky130_fd_sc_hd/lib/)  -> área            (la usa síntesis)
+#    .lef  (libs.ref/sky130_fd_sc_hd/lef/)  -> tamaño y pines  (los usa PnR)
 #
 #  Requiere haber hecho:  source ../../scripts/env.sh
 # =====================================================================
@@ -23,73 +23,46 @@ if [ -z "${SCL_DIR:-}" ]; then
   exit 1
 fi
 
-LIBNAME=sky130_fd_sc_hd
 CELDA=$1
 case "$CELDA" in
-  ${LIBNAME}__*) ;;                       # ya viene con el prefijo
-  *) CELDA="${LIBNAME}__${CELDA}" ;;      # nand2_1 -> sky130_fd_sc_hd__nand2_1
+  sky130_fd_sc_hd__*) ;;                     # ya viene con el prefijo
+  *) CELDA="sky130_fd_sc_hd__$CELDA" ;;      # nand2_1 -> sky130_fd_sc_hd__nand2_1
 esac
 CORNER=${2:-tt_025C_1v80}
 
-LIB="$SCL_DIR/lib/${LIBNAME}__${CORNER}.lib"
-LEF="$SCL_DIR/lef/${LIBNAME}.lef"
+LIB="$SCL_DIR/lib/sky130_fd_sc_hd__${CORNER}.lib"
+LEF="$SCL_DIR/lef/sky130_fd_sc_hd.lef"
 for f in "$LIB" "$LEF"; do
   [ -f "$f" ] || { echo "ERROR: no existe $f" >&2; exit 1; }
 done
-
-# ---------------------------------------------------------------------
-# 1) ÁREA (.lib)
-#    En el .lib cada celda empieza con:   cell ("sky130_fd_sc_hd__nand2_1") {
-#    y más abajo tiene una línea:          area : 3.7536000000;
-#    Busca la primera línea "area" DESPUÉS de que aparece tu celda.
-# ---------------------------------------------------------------------
-AREA=$(awk -v c="$CELDA" '
-  index($0, "cell (\"" c "\")") { dentro = 1 }
-  dentro && $1 == "area" { gsub(/;/, "", $3); print $3 + 0; exit }
-' "$LIB")
-
-# ---------------------------------------------------------------------
-# 2) TAMAÑO (.lef)
-#    En el LEF cada celda es un bloque  MACRO <celda> ... END <celda>
-#    y adentro tiene:                   SIZE  1.380000 BY  2.720000 ;
-#    Imprime el ancho y el alto (campos 2 y 4 de esa línea).
-# ---------------------------------------------------------------------
-read -r ANCHO ALTO < <(awk -v c="$CELDA" '
-  $1 == "MACRO" && $2 == c { dentro = 1 }
-  dentro && $1 == "SIZE"   { print $2 + 0, $4 + 0; exit }
-' "$LEF")
-
-# ---------------------------------------------------------------------
-# 3) PINES (.lef)
-#    Dentro del MACRO, cada pin es:     PIN A
-#                                         DIRECTION INPUT ;
-#    Imprime una línea por pin:  "<nombre> <dirección>"
-# ---------------------------------------------------------------------
-PINES=$(awk -v c="$CELDA" '
-  $1 == "MACRO" && $2 == c                  { dentro = 1 }
-  dentro && $1 == "END" && $2 == c          { exit }
-  dentro && $1 == "PIN"                     { pin = $2 }
-  dentro && $1 == "DIRECTION" && pin != ""  { print pin, $2; pin = "" }
-' "$LEF")
-
-# ---------------------------------------------------------------------
-#  Reporte (ya está hecho: no hay que tocarlo)
-# ---------------------------------------------------------------------
-if ! grep -qE "^MACRO[[:space:]]+${CELDA}[[:space:]]*$" "$LEF"; then
-  echo "No encontré la celda '$CELDA'. Prueba:  grep -o '${LIBNAME}__[a-z0-9_]*' \"$LEF\" | sort -u | less" >&2
+if ! grep -q "^MACRO $CELDA\$" "$LEF"; then
+  echo "No encontré la celda '$CELDA'. Lista de celdas:  grep '^MACRO' \$CELLLEF | less" >&2
   exit 2
 fi
 
-SITIO=0.46   # ancho del sitio unithd en µm (techlef)
-SITIOS=$(awk -v w="${ANCHO:-0}" -v s="$SITIO" 'BEGIN { printf "%d", w / s + 0.5 }')
+# ---- Lo que vas a usar en tus comandos (ya está listo) ------------------
+PATRON_LIB="cell (\"$CELDA\")"      # así empieza tu celda en el .lib
+PATRON_LEF="MACRO $CELDA"           # así empieza tu celda en el .lef
+BLOQUE=$(sed -n "/^MACRO $CELDA\$/,/^END $CELDA\$/p" "$LEF")   # solo el bloque de tu celda en el .lef
+
+# ---- TODO 1 · ÁREA (del .lib) -------------------------------------------
+AREA=$(grep -A500 "$PATRON_LIB" "$LIB" | grep "area :" | head -1 | awk '{print $3}' | tr -d ';')
+
+# ---- TODO 2 · TAMAÑO (del .lef): debe dar "ancho alto", p.ej. "1.380 2.720"
+TAMANO=$(grep -A8 "$PATRON_LEF" "$LEF" | grep SIZE | head -1 | awk '{print $2, $4}')
+
+# ---- TODO 3 · PINES (del .lef): un nombre de pin por línea ---------------
+PINES=$(echo "$BLOQUE" | grep PIN | awk '{print $2}')
+
+# =====================================================================
+#  Reporte (ya está hecho: no hay que tocarlo)
+# =====================================================================
+read -r ANCHO ALTO <<< "${TAMANO:-}"
+num() { awk -v x="$1" 'BEGIN { if (x == "") print "TODO"; else printf "%g", x }'; }
+SITIOS=$(awk -v w="${ANCHO:-0}" 'BEGIN { printf "%d", w / 0.46 + 0.5 }')   # sitio unithd = 0.46 µm
 
 echo "Celda   : $CELDA"
 echo "Corner  : $CORNER"
-echo "Área    : ${AREA:-TODO} µm²            (.lib)"
-echo "Tamaño  : ${ANCHO:-TODO} x ${ALTO:-TODO} µm  = $SITIOS sitios unithd   (.lef)"
-echo "Pines   :"
-if [ -n "$PINES" ]; then
-  echo "$PINES" | awk '{ printf "  %-8s %s\n", $1, tolower($2) }'
-else
-  echo "  TODO"
-fi
+echo "Área    : $(num "$AREA") µm²                (.lib)"
+echo "Tamaño  : $(num "${ANCHO:-}") x $(num "${ALTO:-}") µm  = $SITIOS sitios unithd   (.lef)"
+echo "Pines   : $(echo ${PINES:-TODO})         (.lef)"
