@@ -6,7 +6,7 @@ S  ?=
 
 .DEFAULT_GOAL := help
 .PHONY: help humo slides slides-forzar clean-slides
-LAB_TARGETS := check rutas git-check pdk celda klayout entrega
+LAB_TARGETS := check rutas git-check pdk celda klayout entrega preguntas lint show sim latch
 .PHONY: $(LAB_TARGETS)
 
 help:
@@ -16,7 +16,7 @@ help:
 	@echo "  make slides S=sesion1   construye solo una (S=ejemplo para la de referencia)"
 	@echo "  make slides-forzar S=.. igual, pero re-renderiza todos los diagramas Mermaid"
 	@echo "  make clean-slides       borra slides/out y los renders de Mermaid"
-	@echo "Labs: cd labs/lab01-linux-pdk && make help"
+	@echo "Labs: cd labs/lab02-rtl && make help   (cada lab tiene su carpeta)"
 
 humo:
 	@./scripts/prueba_humo.sh
@@ -33,5 +33,5 @@ clean-slides:
 # Objetivos que viven en los labs: si alguien los corre aquí, se le dice dónde.
 $(LAB_TARGETS):
 	@echo "'make $@' se corre desde la carpeta del lab, no desde la raíz del repo:"
-	@echo "    cd labs/lab01-linux-pdk && make $@"
+	@echo "    cd labs/lab0N-... && make $@      (por ejemplo: cd labs/lab02-rtl)"
 	@exit 2
