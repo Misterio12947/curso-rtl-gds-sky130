@@ -2,7 +2,7 @@
 
 **Nombre:** 
 **PDK_ROOT que usé:** 
-**¿Lo bajé con ciel o usé el del contenedor?:** 
+**Versión del PDK (hash de `ciel ls`):** 
 
 ## 1. Tres celdas por dentro
 

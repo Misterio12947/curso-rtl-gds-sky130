@@ -8,7 +8,7 @@ Todo se hace dentro del contenedor `iic-osic-tools`. Cada parte se autocomprueba
 | 1 · Arranque | 10 min | Contenedor, carpeta compartida, tu copia del repo | `make check` |
 | 2 · Linux y rutas | 15 min | 8 retos en `respuestas_rutas.txt` | `make rutas` |
 | 3 · Git | 15 min | Tu rama, tu primer commit, push a tu fork | `make git-check` |
-| 4 · PDK | 20 min | Bajar el PDK, explorarlo, completar `pdk_info.sh`, ver una celda | `make celda`, `make entrega` |
+| 4 · PDK | 20 min | Ver qué PDK tienes, explorarlo, completar `pdk_info.sh`, ver una celda | `make celda`, `make entrega` |
 
 **Entregable:** commit en tu rama `alumno/<tu-nombre>` con `notas_pdk.md` lleno
 (área y tamaño de 3 celdas, corners disponibles), `pdk_info.sh` completo y `respuestas_rutas.txt`.
@@ -108,8 +108,17 @@ git log --oneline -5
 git push -u origin alumno/<tu-nombre>
 ```
 
-Para el `push`, GitHub pide tu usuario y, como contraseña, un **token** (*Settings → Developer settings →
-Personal access tokens*), no tu contraseña normal.
+Para el `push`, GitHub pide tu usuario y, **como contraseña, tu token** (lo creaste en la preparación
+previa). Tu contraseña normal **no funciona**: GitHub responde `Password authentication is not supported`.
+Para no teclearlo en cada push durante la sesión:
+
+```bash
+git config --global credential.helper "cache --timeout=7200"   # lo recuerda 2 horas
+```
+
+¿No tienes token? En GitHub: tu foto → *Settings* → *Developer settings* → *Personal access tokens* →
+*Tokens (classic)* → *Generate new token (classic)*. Marca el permiso **repo**, ponle 90 días de vigencia
+y copia el token en ese momento (GitHub no lo vuelve a mostrar).
 
 ```bash
 make git-check
@@ -122,26 +131,38 @@ Revisa el `.gitignore` de la raíz: ya los excluye.
 
 ## Parte 4 · El PDK por dentro (20 min)
 
-### 4.1 Bajar el PDK
+### 4.1 ¿Qué PDK tengo?
 
-**Opción A, con `ciel`** (lo que haría un Flow Engineer). Lo guardamos en `/foss/designs/pdks`
-para que sobreviva aunque borres el contenedor (ocupa varios GB):
+El contenedor ya trae SKY130 instalado con `ciel`, el gestor de versiones de PDKs. Pregúntale cuál:
 
 ```bash
-ciel ls-remote --pdk-family sky130 | head            # versiones disponibles
-ciel enable --pdk-family sky130 --pdk-root /foss/designs/pdks <HASH>   # el hash que indique el instructor
+ciel ls --pdk-family sky130 --pdk-root /foss/pdks
+# └── 1689ac3f2dc763876eaf967227c7dfe831b031ae (2026.08.27) (enabled)
 ```
 
-**Opción B, si la red está saturada** o sale un error de *rate limit*: usa el PDK que ya trae el contenedor.
-No tienes que hacer nada: `env.sh` lo encuentra solo.
+Ese hash identifica **exactamente** qué versión del PDK usas: es lo que anotas en tus notas y lo que
+pondrías en el README de un proyecto para que otro reproduzca tus resultados.
 
-En cualquiera de los dos casos:
+Ahora fija las variables del curso:
 
 ```bash
 source ../../scripts/env.sh          # dice qué PDK encontró
 echo $PDK_ROOT $PDK
 ENV_VERBOSE=1 source ../../scripts/env.sh   # y todas las rutas que fijó
 ```
+
+> **Cómo se baja un PDK (lo ve el instructor en el proyector; tú, opcional en casa).**
+> `ciel` consulta la API de GitHub, que sin cuenta permite 60 consultas por hora por red:
+> si todo el salón lo corre a la vez, nadie termina. Fuera de clase:
+>
+> ```bash
+> ciel ls-remote --pdk-family sky130 | head          # versiones publicadas
+> ciel enable --pdk-family sky130 --pdk-root /foss/designs/pdks \
+>     1689ac3f2dc763876eaf967227c7dfe831b031ae       # la misma del curso, en la carpeta compartida
+> ```
+>
+> En `/foss/designs/pdks` sobrevive aunque borres el contenedor (ocupa varios GB),
+> y `env.sh` lo prefiere sobre el del contenedor.
 
 ### 4.2 Explorar
 

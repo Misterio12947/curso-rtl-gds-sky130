@@ -26,3 +26,8 @@ echo "-- Corners (un .lib por corner: proceso_temperatura_voltaje)"
 for f in "$SCL_DIR"/lib/*.lib; do
   b=$(basename "$f" .lib); printf '   %s\n' "${b#"${STD_CELL_LIBRARY}"__}"
 done
+if ls "$SCL_DIR"/lib/*_ccsnoise.lib >/dev/null 2>&1; then
+  echo
+  echo "   (los *_ccsnoise son el MISMO corner con un modelo de ruido más detallado (CCS),"
+  echo "    no un corner nuevo; el curso usa los .lib normales)"
+fi
