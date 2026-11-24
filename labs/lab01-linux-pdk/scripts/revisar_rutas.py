@@ -114,7 +114,9 @@ def r7(resp):  # cuántos .lib hay, usando $SCL_DIR
     n = len(list((Path(os.environ["SCL_DIR"]) / "lib").glob("*.lib")))
     nums = re.findall(r"\d+", out)
     if rc == 0 and nums and int(nums[-1]) == n:
-        return True, f"{n} archivos .lib (uno por corner)"
+        ccs = len(list((Path(os.environ["SCL_DIR"]) / "lib").glob("*_ccsnoise.lib")))
+        detalle = f" ({n - ccs} corners + {ccs} variantes _ccsnoise del mismo corner)" if ccs else " (uno por corner)"
+        return True, f"{n} archivos .lib{detalle}"
     return False, "el número no coincide"
 
 

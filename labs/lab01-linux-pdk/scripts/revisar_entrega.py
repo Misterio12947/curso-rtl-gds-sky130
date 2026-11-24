@@ -46,7 +46,7 @@ rep(llenas >= 3, f"Tabla de celdas: {llenas}/3 renglones completos",
     "usa ./pdk_info.sh <celda>; la tercera celda la eliges tú")
 
 sec = notas.split("## 2.")[1].split("## 3.")[0] if "## 2." in notas else ""
-corners = set(re.findall(r"\b(?:tt|ss|ff|sf|fs)_n?\d+C_\dv\d\d\b", sec))
+corners = set(re.findall(r"\b(?:tt|ss|ff|sf|fs)_n?\d+C_\dv\d\d(?:_ccsnoise)?\b", sec))
 rep(len(corners) >= 3, f"Corners listados: {len(corners)}", "lista los .lib de libs.ref/sky130_fd_sc_hd/lib/")
 
 cab = {k: re.search(rf"\*\*{k}:\*\*\s*(\S.*)", notas) for k in ("Nombre", "PDK_ROOT que usé")}

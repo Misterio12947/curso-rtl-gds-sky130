@@ -9,6 +9,9 @@ con SKY130 y herramientas open source. Al final tiene DRC/LVS limpios y el timin
 
 ## Arranque rápido
 
+**Antes de la sesión 1:** cuenta de GitHub **y un token** (*Settings → Developer settings →
+Personal access tokens → Tokens (classic)*, permiso `repo`). GitHub ya no acepta tu contraseña para `git push`.
+
 Todo corre dentro del contenedor [`hpretl/iic-osic-tools`](https://github.com/iic-jku/IIC-OSIC-TOOLS)
 (usa la misma etiqueta que se indicó en el aviso del curso).
 
@@ -75,4 +78,4 @@ Este repo es autocontenido, pero parte de
 ## Licencia
 
 Código bajo [MIT](LICENSE). Slides y documentación: libres de reutilizar citando la fuente.
-© 2026 César Otamendi Velázquez / EELCCOM.
+© 2026 Cesar Otamendi Velázquez / EELCCOM.

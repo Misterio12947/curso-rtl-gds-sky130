@@ -1,10 +1,8 @@
 # Notas del PDK · Lab01 · SOLUCIÓN
 
 **Nombre:** Solución del instructor
-**PDK_ROOT que usé:** /foss/designs/pdks (o el del contenedor: lo que imprima `source ../../scripts/env.sh`)
-**¿Lo bajé con ciel o usé el del contenedor?:** ciel
-
-> POR VALIDAR contra el PDK real de la imagen del curso: los números salen de `pdk_info.sh`.
+**PDK_ROOT que usé:** /foss/pdks (el del contenedor; lo imprime `source ../../scripts/env.sh`)
+**Versión del PDK (hash de `ciel ls`):** 1689ac3f2dc763876eaf967227c7dfe831b031ae (2026.08.27)
 
 ## 1. Tres celdas por dentro
 
@@ -16,14 +14,30 @@
 
 Además, toda celda tiene 4 pines de alimentación: VPWR y VGND (rieles) y VPB y VNB (pozo y sustrato).
 Área = ancho × alto: 1.38 × 2.72 = 3.7536. El ancho siempre es un múltiplo del sitio (0.46 µm).
+Otras que vale la pena ver: `fa_1` (20.0192 µm², 16 sitios, dos salidas COUT y SUM) y `a21oi_1` (5.0048 µm², 4 sitios).
 
 ## 2. Corners disponibles
 
-Los que liste `ls $SCL_DIR/lib`. Al menos estos tres son los que usa el curso:
+La librería trae 18 `.lib`: 16 corners más 2 variantes `_ccsnoise` (el mismo corner con modelo de ruido CCS).
 
 - tt_025C_1v80
+- tt_100C_1v80
 - ss_100C_1v60
+- ss_100C_1v40
+- ss_n40C_1v28
+- ss_n40C_1v35
+- ss_n40C_1v40
+- ss_n40C_1v44
+- ss_n40C_1v60
+- ss_n40C_1v76
 - ff_n40C_1v95
+- ff_100C_1v65
+- ff_100C_1v95
+- ff_n40C_1v56
+- ff_n40C_1v65
+- ff_n40C_1v76
+
+Los tres que usa el curso: `tt_025C_1v80` (típico), `ss_100C_1v60` (setup) y `ff_n40C_1v95` (hold).
 
 ## 3. Preguntas
 
