@@ -6,6 +6,8 @@ S  ?=
 
 .DEFAULT_GOAL := help
 .PHONY: help humo slides slides-forzar clean-slides
+LAB_TARGETS := check rutas git-check pdk celda klayout entrega
+.PHONY: $(LAB_TARGETS)
 
 help:
 	@echo "Curso RTL -> GDSII (SKY130)"
@@ -27,3 +29,9 @@ slides-forzar:
 
 clean-slides:
 	rm -rf slides/out slides/*/_render
+
+# Objetivos que viven en los labs: si alguien los corre aquí, se le dice dónde.
+$(LAB_TARGETS):
+	@echo "'make $@' se corre desde la carpeta del lab, no desde la raíz del repo:"
+	@echo "    cd labs/lab01-linux-pdk && make $@"
+	@exit 2
