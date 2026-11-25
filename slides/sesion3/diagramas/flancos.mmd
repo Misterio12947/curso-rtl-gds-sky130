@@ -1,0 +1,11 @@
+flowchart LR
+    B1["<b>flanco de bajada</b><br/>el TB cambia las entradas<br/>y lee las salidas"]
+    S["<b>flanco de subida</b><br/>el diseño guarda<br/>(flip-flops)"]
+    B2["<b>flanco de bajada</b><br/>salidas ya estables:<br/>se revisan"]
+
+    B1 -- "medio ciclo: 10 ns" --> S -- "medio ciclo: 10 ns" --> B2
+
+    classDef tb fill:#61CBF4,stroke:#000,color:#000
+    classDef dut fill:#9933FF,stroke:#000,color:#fff
+    class B1,B2 tb
+    class S dut

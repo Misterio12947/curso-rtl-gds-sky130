@@ -1,0 +1,21 @@
+flowchart LR
+    T["<b>Tu test</b>"]
+    OK["<b>RTL correcto</b>"]
+    MU["<b>Mutante</b><br/>copia con UN bug<br/>a propósito"]
+    P1["PASS<br/><i>esperado</i>"]
+    F["FAIL<br/><b>lo atrapó</b>"]
+    P2["PASS<br/><b>hueco en tu test</b>"]
+
+    T --> OK --> P1
+    T --> MU
+    MU --> F
+    MU --> P2
+
+    classDef cod fill:#FFFFFF,stroke:#000,color:#000
+    classDef mut fill:#FFC000,stroke:#000,color:#000
+    classDef ok fill:#00B050,stroke:#000,color:#fff
+    classDef mal fill:#FF3399,stroke:#000,color:#fff
+    class T,OK cod
+    class MU mut
+    class P1,F ok
+    class P2 mal

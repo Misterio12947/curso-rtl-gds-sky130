@@ -44,6 +44,12 @@ __pycache__/
 *_bmc/
 *_prove/
 
+# ---- Ejemplos de las slides (se regeneran en la demo) ----
+slides/*/ejemplos/build/
+slides/*/ejemplos/churros/
+slides/*/ejemplos/sim
+*.fsdb
+
 # ---- Síntesis (Yosys) ----
 netlist.v
 *.blif

@@ -1,0 +1,17 @@
+# churros.sby · Demuestra la propiedad de formal_churros.v (sesión 3, Gelatina)
+#   sby -f churros.sby
+[options]
+mode prove
+depth 10
+
+[engines]
+smtbmc
+
+[script]
+read -formal formal_churros.v
+read -formal maquina_churros.v
+prep -top formal_churros
+
+[files]
+formal_churros.v
+maquina_churros.v
