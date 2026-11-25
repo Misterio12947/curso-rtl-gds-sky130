@@ -1,0 +1,19 @@
+flowchart LR
+    SIM["<b>make sim</b><br/>TB base<br/><i>PASS</i>"]
+    BUG["<b>un bug</b><br/>a propósito<br/><i>FAIL + onda</i>"]
+    COC["<b>make cocotb</b><br/>dirigido y<br/>aleatorio"]
+    MUT["<b>make mutantes</b><br/><i>¿tus tests sirven?</i>"]
+    FOR["<b>make formal</b><br/>SymbiYosys<br/><i>opcional</i>"]
+    GIT(["<b>commit + push</b><br/>make entrega"])
+
+    SIM --> BUG --> COC --> MUT --> FOR --> GIT
+    BUG -. "git restore" .-> SIM
+
+    classDef paso fill:#61CBF4,stroke:#000,color:#000
+    classDef mal fill:#FF3399,stroke:#000,color:#fff
+    classDef opc fill:#C2F1C8,stroke:#000,color:#000
+    classDef fin fill:#00B050,stroke:#000,color:#fff
+    class SIM,COC,MUT paso
+    class BUG mal
+    class FOR opc
+    class GIT fin

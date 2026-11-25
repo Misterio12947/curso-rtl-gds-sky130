@@ -1,0 +1,21 @@
+flowchart LR
+    R["<b>Estímulo aleatorio</b><br/>random + semilla"]
+    DUT["<b>DUT</b><br/>el RTL"]
+    M["<b>Modelo de referencia</b><br/>lo que DEBERÍA pasar<br/>(Python o SystemVerilog)"]
+    CMP{"<b>Comparador</b><br/>cada ciclo"}
+    COB["<b>Cobertura</b><br/>¿qué situaciones<br/>alcanzamos?"]
+
+    R --> DUT --> CMP
+    R --> M --> CMP
+    R -. cuenta .-> COB
+
+    classDef est fill:#61CBF4,stroke:#000,color:#000
+    classDef dut fill:#9933FF,stroke:#000,color:#fff
+    classDef mod fill:#FFFFFF,stroke:#000,color:#000
+    classDef chk fill:#00B050,stroke:#000,color:#fff
+    classDef cob fill:#FFC000,stroke:#000,color:#000
+    class R est
+    class DUT dut
+    class M mod
+    class CMP chk
+    class COB cob

@@ -1,0 +1,22 @@
+flowchart LR
+    RTL["<b>RTL</b><br/>semaphore.v<br/><i>Churros</i>"]
+    V["<b>Verificación</b><br/>¿hace lo que<br/>pide la spec?<br/><i>Flan + Gelatina</i>"]
+    S["<b>Síntesis</b><br/>netlist de celdas<br/><i>Polvorón</i>"]
+    P["<b>PnR</b><br/>layout<br/><i>Tres leches</i>"]
+    G(["<b>GDSII</b><br/>a la fábrica"])
+    BUG["<b>bug en silicio</b><br/>re-spin: millones<br/>y meses"]
+
+    RTL --> V --> S --> P --> G
+    V -. "FAIL: barato" .-> RTL
+    G -. "si se escapa" .-> BUG
+
+    classDef cod fill:#FFFFFF,stroke:#000,color:#000
+    classDef hoy fill:#FFC000,stroke:#000,color:#000
+    classDef paso fill:#61CBF4,stroke:#000,color:#000
+    classDef fin fill:#00B050,stroke:#000,color:#fff
+    classDef mal fill:#FF3399,stroke:#000,color:#fff
+    class RTL cod
+    class V hoy
+    class S,P paso
+    class G fin
+    class BUG mal

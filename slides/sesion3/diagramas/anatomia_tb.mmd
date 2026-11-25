@@ -1,0 +1,21 @@
+flowchart LR
+    E["<b>Estímulo</b><br/>genera las entradas"]
+    DUT["<b>DUT</b><br/>el diseño a probar"]
+    C["<b>Checker</b><br/>¿salida = esperado?"]
+    V{"PASS / FAIL"}
+    COB["<b>Cobertura</b><br/>¿probamos suficiente?"]
+
+    E --> DUT --> C --> V
+    E -. observa .-> COB
+    DUT -. observa .-> COB
+
+    classDef est fill:#61CBF4,stroke:#000,color:#000
+    classDef dut fill:#9933FF,stroke:#000,color:#fff
+    classDef chk fill:#00B050,stroke:#000,color:#fff
+    classDef cob fill:#FFC000,stroke:#000,color:#000
+    classDef ver fill:#FFFFFF,stroke:#000,color:#000
+    class E est
+    class DUT dut
+    class C chk
+    class COB cob
+    class V ver

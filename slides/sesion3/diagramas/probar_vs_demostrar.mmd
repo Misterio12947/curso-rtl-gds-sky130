@@ -1,0 +1,15 @@
+flowchart TB
+    subgraph SIM["Simulación · Flan"]
+        direction LR
+        S1["tú eliges<br/>los casos"] --> S2["revisa solo<br/>los que corriste"] --> S3["PASS =<br/>no encontré nada"]
+    end
+    subgraph FOR["Formal · Gelatina"]
+        direction LR
+        F1["tú escribes<br/>la propiedad"] --> F2["el solver prueba TODAS<br/>las entradas posibles"] --> F3["PASS = demostrado<br/>FAIL = contraejemplo"]
+    end
+    SIM ~~~ FOR
+
+    classDef sim fill:#FFC000,stroke:#000,color:#000
+    classDef for fill:#00B050,stroke:#000,color:#fff
+    class S1,S2,S3 sim
+    class F1,F2,F3 for
