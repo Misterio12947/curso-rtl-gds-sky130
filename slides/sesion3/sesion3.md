@@ -325,6 +325,248 @@ Para quien quiera seguir: el curso de UVM con VCS del laboratorio usa exactament
 
 ---
 
+<!-- layout: diagrama -->
+<!-- color: morado -->
+# Un ambiente UVM, pieza por pieza
+
+![uvm](diagramas/uvm_ambiente.mmd)
+
+> Separar QUÉ (sequence) de CÓMO (driver) es lo que permite reutilizar
+
+<!-- notas:
+Cada pieza tiene una responsabilidad: el test solo elige secuencias, el monitor no juzga (observa y
+publica) y scoreboard y cobertura escuchan al monitor.
+Es el mismo diagrama de la portada, ahora con nombres. Recorrerlo con el flujo de un dato: la secuencia crea
+un item ("pedido = 1"), el sequencer se lo pasa al driver, el driver lo pone en los pines en el flanco de
+bajada, el DUT responde, el monitor convierte pines en un item y lo publica por un analysis port; el
+scoreboard lo compara contra el modelo y la cobertura lo cuenta.
+Reutilización: el mismo agent sirve en el ambiente del bloque y en el del chip completo (ahí el driver se
+apaga y solo queda el monitor: agent pasivo). Las empresas compran agents hechos (VIP) para AXI, PCIe, USB.
+-->
+
+---
+
+<!-- layout: contenido -->
+<!-- color: morado -->
+# Lo mismo que ya conoces, con otro nombre
+
+| Pieza UVM | Qué hace | En el banco de cocotb del lab |
+| --- | --- | --- |
+| `sequence_item` | Lo que pasa en un ciclo | Los argumentos de `tb.pulso()` / `tb.reset()` |
+| `sequence` | Genera el estímulo (dirigido o aleatorio) | Tu test |
+| `driver` | Item → pines, en el flanco correcto | `tb.pulso()`, `tb.reset()` |
+| `monitor` | Pines → item | Las lecturas de `tb.luz()` |
+| `scoreboard` | Modelo + comparador | El modelo y el comparador del banco |
+| `coverage` | Covergroups: ¿qué alcanzamos? | La tabla de cobertura de `tb.cierra()` |
+| `test` | Elige secuencias y configuración | `@cocotb.test()` |
+
+> UVM no inventa conceptos nuevos: los pone en clases estándar que todo el mundo entiende
+
+<!-- notas:
+Esta tabla es el puente: lo que hacen en la práctica con cocotb es un UVM chiquito. Cuando lleguen a una
+empresa, el código cambia de lenguaje pero las responsabilidades son las mismas.
+Diferencia real: en UVM todo es una clase registrada en la factory, con fases y configuración por
+uvm_config_db. Eso da reutilización a escala de cientos de ingenieros, a cambio de mucho código.
+-->
+
+---
+
+<!-- layout: codigo -->
+<!-- color: cian -->
+# La transacción y el constrained-random
+
+```systemverilog churros_item.sv
+class churros_item extends uvm_sequence_item;
+    rand bit rst_n, pedido, listo;     // entradas: las genera la secuencia
+    bit      freidora, azucar;         // salidas: las llena el monitor
+
+    constraint c_reset  { rst_n  dist {1 := 19, 0 := 1}; }
+    constraint c_pedido { pedido dist {1 := 3,  0 := 7}; }
+
+    `uvm_object_utils(churros_item)    // registrado en la factory
+    ...
+endclass
+```
+
+```systemverilog Una secuencia dirigida: las mismas reglas, con with
+`uvm_do_with(req, { rst_n == 1; pedido == 1; listo == 0; })
+```
+
+- `rand` + `constraint`: aleatorio **con reglas**
+- `dist`: con qué probabilidad sale cada valor
+- `with { }`: fija valores para un caso dirigido
+
+<!-- notas:
+Aquí está la fuerza de SystemVerilog para verificación: el solver de constraints. Una regla como
+"rst_n vale 0 una de cada 20 veces" se escribe en una línea; con reglas entre campos (por ejemplo,
+"si es escritura, la dirección debe estar alineada") el solver encuentra valores que cumplen todo.
+En cocotb lo mismo se hace a mano con random.random() o con librerías como cocotb-coverage / pyuvm.
+-->
+
+---
+
+<!-- layout: codigo -->
+<!-- color: cian -->
+# Driver y monitor: entrar y salir de los pines
+
+```systemverilog churros_driver.sv · run_phase
+forever begin
+    seq_item_port.get_next_item(req);   // pide el siguiente item
+    @(negedge vif.clk);                 // en la bajada: nada choca
+    vif.pedido <= req.pedido;
+    vif.listo  <= req.listo;
+    seq_item_port.item_done();
+end
+```
+
+```systemverilog churros_monitor.sv · run_phase
+forever begin
+    @(vif.mon_cb);                      // clocking block
+    t.pedido   = vif.mon_cb.pedido;
+    t.freidora = vif.mon_cb.freidora;   ...
+    ap.write(t);                        // a quien esté escuchando
+end
+```
+
+- El driver **no decide** qué valor poner: solo el **cuándo** y el **dónde**
+- El `clocking block` muestrea sin carreras contra el flanco
+
+<!-- notas:
+vif es una virtual interface: el puente entre el mundo de clases (dinámico) y el de módulos (los pines).
+El top la registra con uvm_config_db y el driver y el monitor la piden en build_phase.
+El clocking block con "input #1step" toma el valor de justo antes del flanco de subida: es la manera
+estándar de evitar las carreras de las que hablamos en la slide del tiempo en la simulación.
+-->
+
+---
+
+<!-- layout: codigo -->
+<!-- color: verde -->
+# Scoreboard y cobertura: el juez y el contador
+
+```systemverilog churros_scoreboard.sv · write()
+if (t.freidora !== (modelo == FREIR) || t.azucar !== (modelo == AZUCAR))
+    `uvm_error("SCB", $sformatf("en %s: freidora=%0b azucar=%0b",
+               modelo.name(), t.freidora, t.azucar))
+case (modelo)                           // el modelo avanza con las entradas
+    ESPERA: if (t.pedido) modelo = FREIR;
+    FREIR:  if (t.listo)  modelo = AZUCAR;
+    AZUCAR:               modelo = ESPERA;
+endcase
+```
+
+```systemverilog churros_coverage.sv
+covergroup cg;
+    cp_salida : coverpoint {t.freidora, t.azucar} iff (t.rst_n) {
+        bins espera = {2'b00};  bins freir = {2'b10};  bins azucar = {2'b01};
+        illegal_bins dos = {2'b11};     // freír y azúcar a la vez
+    }
+    x_pedido : cross cp_salida, cp_pedido;   // ¿pidieron en cada estado?
+endgroup
+```
+
+- `uvm_error` suma al contador: al final, **TEST PASSED / FAILED** sale solo
+- `cross`: combinaciones de situaciones; `illegal_bins`: lo que nunca debe pasar
+
+<!-- notas:
+El modelo del scoreboard es el mismo que el de test_churros.py en Python: unas líneas que cualquiera puede
+revisar contra la spec. El scoreboard nunca usa las señales internas del DUT, solo lo que ve el monitor.
+La cobertura funcional sale en el reporte del simulador (URG en VCS) y se junta de todas las semillas de la
+regresión: así se sabe cuándo el plan de verificación está cerrado.
+-->
+
+---
+
+<!-- layout: diagrama -->
+<!-- color: morado -->
+# Fases y objections: quién manda en el tiempo
+
+- Todos los componentes pasan por las **mismas fases**, en orden
+- La simulación termina cuando nadie tiene una **objection** levantada
+- `+UVM_TESTNAME=churros_random_test` elige el test **sin recompilar** (factory)
+
+![fases](diagramas/uvm_fases.mmd)
+
+> Una vez compilado, un ambiente UVM corre cientos de tests distintos
+
+<!-- notas:
+build_phase va de arriba hacia abajo (el test crea el env, el env crea el agent...), connect_phase conecta
+puertos, run_phase es la única que consume tiempo y report_phase imprime resúmenes.
+El test levanta una objection antes de arrancar las secuencias y la baja al terminar. Error clásico: olvidar
+el raise y que la simulación termine en el tiempo 0 con PASSED (no se probó nada).
+La factory permite además cambiar una clase por otra desde el test (type override) sin tocar el env.
+-->
+
+---
+
+<!-- layout: diagrama -->
+<!-- color: rosa -->
+# Así se verifica en la industria
+
+- Un **plan de verificación** sale de la spec: qué hay que probar y cómo se mide
+- Cada noche corre la **regresión**: todos los tests, con miles de semillas
+- Cada FAIL se **repite con su semilla** y se decide: ¿bug del RTL o del testbench?
+- Se firma cuando la **cobertura se cierra** y no queda ningún FAIL
+
+![regresion](diagramas/uvm_regresion.mmd)
+
+<!-- notas:
+Datos para la discusión: en un SoC grande la regresión usa granjas de cientos de servidores y licencias de
+simulador; un DV Engineer pasa buena parte del día en triage de fallas. Herramientas típicas: VCS o Xcelium
+para simular, Verdi para depurar, URG/IMC para cobertura, vManager o VC Execution Manager para regresiones.
+Certitude (mutantes) entra al final para preguntar si el testbench de verdad vería un bug.
+Rol: DV Engineer. Es la puerta de entrada más común a la industria de semiconductores en México.
+-->
+
+---
+
+<!-- layout: codigo -->
+<!-- color: negro -->
+# Demo: UVM con VCS
+
+```bash Synopsys — VCS + UVM 1.2
+cd slides/sesion3/ejemplos/uvm_churros/sim
+make regress                  # dirigido + 3 aleatorios + URG
+make sim TEST=churros_random_test SEED=7
+make bug                      # mismos tests, RTL con bug
+make verdi                    # cobertura en Verdi
+```
+
+- `make regress`: los 4 tests con **TEST PASSED** y el % de cobertura
+- `make bug`: el **dirigido pasa**; el **aleatorio** da `UVM_ERROR [SCB]`
+- El log dice la **semilla**: con ella se repite la falla exacta
+
+<!-- notas:
+Demo en vivo, 8 a 10 minutos, en la máquina con licencia de VCS (no en el contenedor de los alumnos).
+El bug de rtl_bug/maquina_churros_bug.v: si llega "listo" mientras alguien sigue pidiendo, la máquina no
+pasa al azúcar. El test dirigido nunca pide y avisa "listo" en el mismo ciclo, así que no lo ve; el aleatorio
+lo encuentra en pocos ciclos. Es la lección de dirigida contra aleatoria, con herramientas de la industria.
+Después de make bug: abrir el log, buscar el primer UVM_ERROR, leer el tiempo y repetir con la misma semilla.
+Para la onda: make compile FSDB=1 y make sim, luego verdi -ssf churros.fsdb.
+-->
+
+---
+
+<!-- layout: contenido -->
+<!-- color: verde -->
+# Qué buscar en el log de UVM
+
+- `UVM_INFO ... [SCB] 300 ciclos revisados, 0 errores`: el juez trabajó
+- `UVM_INFO ... [COV] cobertura funcional: ...%`: cuánto del plan alcanzamos
+- `UVM_ERROR ... [SCB] en FREIR: ...`: **qué** falló, **dónde** y **cuándo**
+- `--- UVM Report Summary ---`: el conteo de INFO, WARNING, ERROR y FATAL
+- `*** TEST PASSED ***` solo si `UVM_ERROR` y `UVM_FATAL` están en **cero**
+
+> Un buen testbench se diagnostica leyendo el log, no la onda
+
+<!-- notas:
+Mostrar el log real de la demo junto a esta slide. El reporte final de UVM siempre trae el resumen por
+severidad y por ID ([SCB], [COV], [TEST]): en una regresión, un script lee esas líneas de miles de logs y
+arma la tabla de PASS/FAIL. Es lo mismo que hace make entrega en el lab, pero a escala.
+-->
+
+---
+
 <!-- layout: codigo -->
 <!-- color: cian -->
 # cocotb en 20 líneas

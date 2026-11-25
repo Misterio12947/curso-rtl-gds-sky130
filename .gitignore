@@ -48,6 +48,15 @@ __pycache__/
 slides/*/ejemplos/build/
 slides/*/ejemplos/churros/
 slides/*/ejemplos/sim
+slides/*/ejemplos/uvm_*/sim/simv*
+slides/*/ejemplos/uvm_*/sim/csrc/
+slides/*/ejemplos/uvm_*/sim/*.vdb/
+slides/*/ejemplos/uvm_*/sim/cov_report/
+slides/*/ejemplos/uvm_*/sim/verdiLog/
+slides/*/ejemplos/uvm_*/sim/AN.DB/
+ucli.key
+vc_hdrs.h
+novas*
 *.fsdb
 
 # ---- Síntesis (Yosys) ----
