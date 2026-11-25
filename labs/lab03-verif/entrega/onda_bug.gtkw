@@ -1,0 +1,26 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Wed Nov 25 05:14:06 2026
+[*]
+[dumpfile] "/foss/designs/curso-rtl-gds-sky130/labs/lab03-verif/build/dump.vcd"
+[dumpfile_mtime] "Wed Nov 25 05:14:06 2026"
+[dumpfile_size] 3043
+[savefile] "/foss/designs/curso-rtl-gds-sky130/labs/lab03-verif/entrega/onda_bug.gtkw"
+[timestart] 0
+[size] 1000 600
+[pos] -1 -1
+*-18.332602 90000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 273
+[signals_width] 78
+[sst_expanded] 1
+[sst_vpaned_height] 157
+@28
+tb_semaphore.dut.state[1:0]
+@22
+tb_semaphore.dut.cnt[7:0]
+@28
+tb_semaphore.red
+tb_semaphore.yellow
+tb_semaphore.green
+[pattern_trace] 1
+[pattern_trace] 0
