@@ -28,18 +28,16 @@ async def test_dirigido(dut):
     tb = Banco(dut)
     await tb.arranca()          # sin modelo: aquí el que revisa eres tú
 
-    # Solución: en cada vuelta, cada color debe salir en orden y durar tb.T[color].
+    # Cada color debe salir en orden y quedarse tb.T[color] ticks, 2 vueltas.
     for vuelta in range(1, 3):
         for color in ("verde", "amarillo", "rojo"):
-            luz = tb.luz()
-            assert luz == color, f"vuelta {vuelta}: esperaba {color} y está {luz}"
-            dura = 0
-            while tb.luz() == color:
-                dura += 1
+            for tick in range(1, tb.T[color] + 1):
+                assert tb.luz() == color, (
+                    f"vuelta {vuelta}, tick {tick} del {color}: está {tb.luz()}")
                 await tb.ticks(1)
-                assert dura <= tb.T[color], f"vuelta {vuelta}: {color} dura más de {tb.T[color]} ticks"
-            assert dura == tb.T[color], f"vuelta {vuelta}: {color} duró {dura} ticks y debía durar {tb.T[color]}"
-            tb.log.info("vuelta %d: %-8s %d ticks  ok", vuelta, color, dura)
+            tb.log.info("vuelta %d: %-8s %d ticks  ok", vuelta, color, tb.T[color])
+    # Tras 2 vueltas debe empezar la tercera: así se revisa que el último rojo no dure de más.
+    assert tb.luz() == "verde", f"después de 2 vueltas debía estar verde y está {tb.luz()}"
 
     tb.cierra()
 
@@ -50,7 +48,7 @@ async def test_aleatorio(dut):
     tb = Banco(dut)
     await tb.arranca(modelo=True)   # el comparador revisa cada tick contra el modelo
 
-    # Solución: 300 pasos; en cada uno se elige al azar qué hacer.
+    # 300 pasos; en cada uno se elige al azar qué hacer.
     for _ in range(300):
         dado = random.random()
         if dado < 0.30:
