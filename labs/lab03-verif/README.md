@@ -388,6 +388,7 @@ git diff HEAD upstream/soluciones -- cocotb/test_semaforo.py
 | `firefox ...`: `Sandbox: CanCreateUserNamespace() ... EPERM` | Aviso de Firefox dentro de Docker: se ignora |
 | `make cocotb`: `NotImplementedError: TODO` | Te falta borrar el `raise NotImplementedError(...)` de ese test |
 | `make cocotb`: `SyntaxError` o `IndentationError` | Python usa la sangría: los renglones dentro del test van con 4 espacios |
+| `make: *** empty variable name.  Stop.` | Pusiste espacios en `SEED = 7`: se escribe pegado, `SEED=7` (igual `TEST=...`) |
 | `RuntimeWarning: coroutine ... was never awaited` | Te faltó `await` antes de `tb.ticks`, `tb.pulso` o `tb.reset` |
 | El dirigido falla en el primer tick del amarillo | El tick justo después de `arranca()` también cuenta: el `range` va de 1 a `tb.T[color] + 1` |
 | `cobertura incompleta` | Tu estímulo casi no aprieta el botón o casi no da resets: sube la probabilidad o los pasos |
