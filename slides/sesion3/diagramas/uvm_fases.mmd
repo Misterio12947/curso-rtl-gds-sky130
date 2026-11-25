@@ -1,0 +1,18 @@
+flowchart LR
+    B["<b>build</b><br/>se crean los<br/>componentes<br/>(factory)"]
+    C["<b>connect</b><br/>se conectan<br/>los puertos"]
+    R["<b>run</b><br/>corre el tiempo:<br/>secuencias, driver,<br/>monitor"]
+    REP["<b>report</b><br/>scoreboard y<br/>cobertura resumen:<br/>PASSED / FAILED"]
+    O{{"objection:<br/>raise al empezar,<br/>drop al terminar"}}
+
+    B --> C --> R --> REP
+    O -. "mientras haya una arriba,<br/>run no termina" .-> R
+
+    classDef f fill:#61CBF4,stroke:#000,color:#000
+    classDef run fill:#9933FF,stroke:#000,color:#fff
+    classDef rep fill:#00B050,stroke:#000,color:#fff
+    classDef obj fill:#FFC000,stroke:#000,color:#000
+    class B,C f
+    class R run
+    class REP rep
+    class O obj

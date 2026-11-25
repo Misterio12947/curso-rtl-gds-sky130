@@ -1,0 +1,23 @@
+flowchart LR
+    PLAN["<b>plan de verificación</b><br/>qué hay que probar<br/>(de la spec)"]
+    REG["<b>regresión nocturna</b><br/>cientos de tests ×<br/>miles de semillas"]
+    TRI["<b>triage</b><br/>cada FAIL se repite<br/>con su semilla"]
+    BUG["<b>bug al diseñador</b><br/>o al testbench"]
+    COV{"<b>¿cobertura<br/>cerrada?</b>"}
+    TAPE(["<b>sign-off de<br/>verificación</b>"])
+
+    PLAN --> REG --> TRI --> BUG --> REG
+    REG --> COV
+    COV -- "no: más tests<br/>o constraints" --> PLAN
+    COV -- "sí y 0 FAIL" --> TAPE
+
+    classDef p fill:#FFFFFF,stroke:#000,color:#000
+    classDef r fill:#61CBF4,stroke:#000,color:#000
+    classDef m fill:#FF3399,stroke:#000,color:#fff
+    classDef c fill:#FFC000,stroke:#000,color:#000
+    classDef ok fill:#00B050,stroke:#000,color:#fff
+    class PLAN p
+    class REG,TRI r
+    class BUG m
+    class COV c
+    class TAPE ok
